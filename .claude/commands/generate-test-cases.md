@@ -23,11 +23,11 @@ Playwright MCP를 활용하여 웹 애플리케이션의 테스트 케이스를 
    - UI 컴포넌트별 상세 분석 내용 포함
    - CSS 셀렉터 정보 및 DOM 구조 정리
    - 사용자 인터랙션 가능한 요소들의 위치 및 기능 설명
-   - docs 폴더에 저장하여 향후 자동화 스크립트 작성 시 참조 가능하도록 구성
+   - C:\Miricanvas_Project\Docs\Requirements Analysis 폴더에 저장하여 향후 자동화 스크립트 작성 시 참조 가능하도록 구성
 
 3. **테스트 케이스 작성**
    - 사용자 요구 기능에 대한 정상 테스트케이스, 비정상 테스트 케이스, 엣지 케이스(4번 지침 참조) 포함
-   - 유효 계정은 C:\AIChallenge(QA)\CLAUDE.md 해당 파일의 **유효 계정** 참고
+   - 미리캔버스 로그인 테스트를 위한 유효 계정 정보는 사용자에게 확인 필요
    - 한글로 표 형식으로 다음 항목들을 포함하여 작성:
      1. TC ID: 넘버링 (예: No.1, No.2...)
      2. Title: 테스트 목적을 명확히 표현 (예: "로그인 화면으로 진입이 가능한지 확인")
@@ -50,10 +50,10 @@ Playwright MCP를 활용하여 웹 애플리케이션의 테스트 케이스를 
    - 테스트가 격리되고 독립적인지 확인
 
 6. **결과물 구성**
-   - website-analyzed.md: 웹사이트 구조 분석 결과 (docs 폴더)
-   - test-cases.xlsx: 체계적으로 정리된 테스트 케이스 (docs 폴더)
+   - website-analyzed.md: 웹사이트 구조 분석 결과 (C:\Miricanvas_Project\Docs\Requirements Analysis)
+   - test-cases.md: 체계적으로 정리된 테스트 케이스 (C:\Miricanvas_Project\Docs\TestCase)
    - 모든 문서는 한국어로 작성하여 국내 개발팀이 활용하기 용이하도록 구성
-   - 작성된 테스트 케이스를 .xlsx 형식으로 생성
-   - 체계적인 표 형태로 구성하여 가독성 향상
-   - docs 폴더에 저장하여 관리
+   - 작성된 테스트 케이스를 마크다운 형식으로 생성
+   - 엑셀 파일로도 생성
+   - C:\Miricanvas_Project\Docs\TestCase 폴더에 저장하여 관리
    - 다른 AI Agent가 자동화 스크립트 작성 시 참조할 수 있도록 구성

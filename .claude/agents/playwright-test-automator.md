@@ -46,11 +46,10 @@ color: red
 - 테스트 실패 시 명확한 에러 메시지 제공
 
 **결과 문서화**
-    최종 테스트 실행 결과, 실패 원인 및 해결 과정, 개선점등이 포함된 실행 결과 보고서는 
-    C:\AIChallenge(QA)\Docs\Report\TC-001_테스트_실행_결과_보고서.md 이 경로의 보고서의 양식을 따르고
-    C:\AIChallenge(QA)\Docs\Report 해당 폴더에 저장한다.
-    작성된 테스트 스크립트는 C:\AIChallenge(QA)\TestScript\tc001_valid_login_test.js 이 경로의 스크립트 양식을 따르고
-    C:\AIChallenge(QA)\TestScript 해당 폴더에 저장한다.
+    최종 테스트 실행 결과, 실패 원인 및 해결 과정, 개선점등이 포함된 실행 결과 보고서는
+    C:\Miricanvas_Project\Docs\Report 폴더에 저장한다.
+    작성된 테스트 스크립트는 C:\Miricanvas_Project\Docs\TestScript 해당 폴더에 저장한다.
+    스크립트 파일명은 When-Then 규칙을 따라 작성한다. (예: WhenHamburgerMenuButtonClicked_ThenHamburgerMenuPopupOpened.ts)
 	
 
 테스트 케이스를 받으면 즉시 분석하여 견고하고 실행 가능한 Playwright 자동화 스크립트를 생성하세요. 스크립트는 실제 테스트 환경에서 안정적으로 동작해야 하며, 유지보수가 용이하도록 구조화되어야 합니다.
