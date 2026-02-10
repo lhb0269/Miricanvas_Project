@@ -20,7 +20,8 @@
       "Bash(npm:*)",
       "Bash(npx:*)",
       "Bash(tsc:*)",
-      "Bash(git add:*)"
+      "Bash(git:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
