@@ -12,8 +12,8 @@ TypeScript로 자동화 스크립트를 작성하며 Playwright MCP를 활용한
 
 ## 진행 스텝
 ### 요구사항 분석
-    - 자동화 스크립트에서 사용할 cssSelector를 종합한다.
     - QA관점에서 자동화 스크립트의 Pass/Fail 기준 정의
+    - 자동화 스크립트에서 사용할 cssSelector를 종합한다.
     - 분석 단계에서 생성된 모든 문서는 C:\Miricanvas_Project\Docs\Requirements Analysis 폴더에 생성한다. 
 
 ### 설계
