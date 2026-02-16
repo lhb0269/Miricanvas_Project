@@ -21,7 +21,9 @@
       "Bash(npx:*)",
       "Bash(tsc:*)",
       "Bash(git:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(claude mcp add playwright -s user -- npx @executeautomation/playwright-mcp-server)"
     ],
     "deny": [],
     "ask": []
