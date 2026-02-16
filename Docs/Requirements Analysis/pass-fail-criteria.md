@@ -7,6 +7,31 @@
 
 ---
 
+## ⚠️ 중요: 테스트 제한사항
+
+### 보안 및 개인정보 보호
+본 프로젝트에서는 **보안 이슈 및 개인정보 유출 가능성**으로 인해 다음과 같은 제한사항이 있습니다:
+
+#### ✅ 테스트 가능 (실제 계정 제공)
+- **이메일 로그인만 실제 테스트 가능**
+- 제공된 테스트 계정:
+  - Email: `lhb0269@naver.com`
+  - Password: `gksqlc9784!`
+
+#### ⚠️ 테스트 제한 (구현만 가능, 실행 불가)
+- **소셜 로그인** (네이버, 구글, 카카오, 페이스북, 웨일, 애플)
+  - CSS 셀렉터 식별 및 자동화 스크립트 구현은 완료
+  - 유효한 계정 정보 미제공으로 **실제 로그인 테스트 불가**
+  - 스크립트는 구현되어 있으나 **실행 시 로그인 실패 예상**
+
+#### 📝 문서화 및 구현 방침
+1. **모든 로그인 방식**에 대해 CSS 셀렉터 및 자동화 스크립트 작성
+2. **이메일 로그인**만 실제 테스트 케이스 실행 및 검증
+3. **소셜 로그인**은 구현 코드만 제공, 향후 계정 제공 시 즉시 테스트 가능한 상태로 준비
+4. 테스트 문서에 "실행 가능 여부" 명시 필요
+
+---
+
 ## 1. 로그인 방식 분류
 
 ### 1.1 소셜 로그인 (팝업 방식)
@@ -42,29 +67,142 @@
 ## 2. 로그인 성공 기준 (PASS)
 
 ### 2.1 주요 성공 기준
-✅ **URL 변경 확인**
+✅ **1단계: URL 변경 확인**
 - 로그인 성공 시 `https://www.miricanvas.com/workspace/drive`로 리다이렉트
-- URL이 위 주소와 정확히 일치하면 **PASS**
+- URL이 위 주소와 정확히 일치해야 함
 
-### 2.2 부가 검증 포인트 (선택사항)
-- HTTP 상태 코드: 200 OK
-- 페이지 로드 완료 확인
-- 로그인 다이얼로그 닫힘 확인
+✅ **2단계: Workspace 페이지 주요 UI 요소 존재 확인**
+
+로그인 성공 후 다음 6개 요소가 모두 존재해야 **PASS**:
+
+#### 2.1.1 유저 프로필 아이콘
+```css
+div[class='WorkspaceAsideMenuBarView__TeamSelectContainer-sc-ca1e8066-4 pZNET team_select_container team_select_container--has_team_menu'] div[class='user_profile_icon']
+```
+**용도:** 사용자 계정 정보 표시
+
+#### 2.1.2 검색 텍스트 박스
+```css
+input[placeholder='검색']
+```
+**용도:** 디자인/템플릿 검색 기능
+
+#### 2.1.3 템플릿 보러가기 버튼
+```css
+div[class$='WorkspaceTemplateButtonView__Container-sc-60c1e03-0 gEPHoE']
+```
+**용도:** 템플릿 페이지 이동
+
+#### 2.1.4 새 디자인 만들기 버튼
+```css
+div[class$='workspace_new_design_button_view']
+```
+**용도:** 새 디자인 생성
+
+#### 2.1.5 알림 버튼
+```css
+div[class$='workspace_notification_button_view']
+```
+**용도:** 알림 확인
+
+#### 2.1.6 프로필 홀더 버튼
+```css
+div[class$='WorkspaceHeaderVC__ProfilePhotoPlaceholderViewContainer-sc-685879eb-0 gqfMqk']
+```
+**용도:** 프로필 메뉴 접근
+
+### 2.2 Pass 판정 로직
+```
+IF (URL === 'https://www.miricanvas.com/workspace/drive')
+  AND (유저 프로필 아이콘 존재)
+  AND (검색 텍스트 박스 존재)
+  AND (템플릿 보러가기 버튼 존재)
+  AND (새 디자인 만들기 버튼 존재)
+  AND (알림 버튼 존재)
+  AND (프로필 홀더 버튼 존재)
+THEN
+  ✅ PASS: 로그인 성공
+ELSE
+  ❌ FAIL: 로그인 실패 또는 불완전한 페이지 로드
+END IF
+```
 
 ### 2.3 Playwright 구현 예시
 ```typescript
-// 로그인 성공 확인
+// 1단계: URL 변경 확인
 await page.waitForURL('https://www.miricanvas.com/workspace/drive', {
   timeout: 10000
 });
 
-// URL이 정확히 일치하는지 검증
+// URL 검증
 const currentURL = page.url();
-if (currentURL === 'https://www.miricanvas.com/workspace/drive') {
-  console.log('✅ PASS: 로그인 성공');
+expect(currentURL).toBe('https://www.miricanvas.com/workspace/drive');
+
+// 2단계: 주요 UI 요소 존재 확인
+const elements = {
+  userProfileIcon: page.locator("div[class='user_profile_icon']"),
+  searchBox: page.locator("input[placeholder='검색']"),
+  templateButton: page.locator("div[class$='WorkspaceTemplateButtonView__Container-sc-60c1e03-0 gEPHoE']"),
+  newDesignButton: page.locator("div[class$='workspace_new_design_button_view']"),
+  notificationButton: page.locator("div[class$='workspace_notification_button_view']"),
+  profileHolder: page.locator("div[class$='WorkspaceHeaderVC__ProfilePhotoPlaceholderViewContainer-sc-685879eb-0 gqfMqk']")
+};
+
+// 모든 요소가 표시될 때까지 대기 (각각 5초 타임아웃)
+await Promise.all([
+  elements.userProfileIcon.waitFor({ state: 'visible', timeout: 5000 }),
+  elements.searchBox.waitFor({ state: 'visible', timeout: 5000 }),
+  elements.templateButton.waitFor({ state: 'visible', timeout: 5000 }),
+  elements.newDesignButton.waitFor({ state: 'visible', timeout: 5000 }),
+  elements.notificationButton.waitFor({ state: 'visible', timeout: 5000 }),
+  elements.profileHolder.waitFor({ state: 'visible', timeout: 5000 })
+]);
+
+// 모든 요소가 존재하는지 확인
+const allElementsVisible = await Promise.all([
+  elements.userProfileIcon.isVisible(),
+  elements.searchBox.isVisible(),
+  elements.templateButton.isVisible(),
+  elements.newDesignButton.isVisible(),
+  elements.notificationButton.isVisible(),
+  elements.profileHolder.isVisible()
+]);
+
+if (allElementsVisible.every(visible => visible === true)) {
+  console.log('✅ PASS: 로그인 성공 - 모든 필수 요소 확인됨');
 } else {
-  console.log('❌ FAIL: 예상 URL로 리다이렉트되지 않음');
+  console.log('❌ FAIL: 일부 필수 요소가 누락됨');
+  allElementsVisible.forEach((visible, index) => {
+    const elementNames = ['유저 프로필 아이콘', '검색 박스', '템플릿 버튼', '새 디자인 버튼', '알림 버튼', '프로필 홀더'];
+    if (!visible) {
+      console.log(`  ❌ ${elementNames[index]} 누락`);
+    }
+  });
 }
+```
+
+### 2.4 대체 셀렉터 (동적 클래스 대응)
+
+**참고:** 미리캔버스는 동적 CSS 클래스를 사용하므로, 클래스명이 변경될 경우 다음 대체 셀렉터를 사용:
+
+```typescript
+// 유저 프로필 아이콘 - 클래스 부분 매칭
+page.locator("div[class*='user_profile_icon']")
+
+// 검색 박스 - placeholder 기반 (가장 안정적)
+page.locator("input[placeholder='검색']")
+
+// 템플릿 버튼 - 텍스트 기반
+page.locator("div:has-text('템플릿')")
+
+// 새 디자인 버튼 - 클래스 부분 매칭
+page.locator("div[class*='workspace_new_design_button']")
+
+// 알림 버튼 - 클래스 부분 매칭
+page.locator("div[class*='workspace_notification_button']")
+
+// 프로필 홀더 - role 또는 aria 속성 사용 (있다면)
+page.locator("[role='button'][aria-label*='프로필']")
 ```
 
 ---
