@@ -67,6 +67,10 @@
 ## 2. 로그인 성공 기준 (PASS)
 
 ### 2.1 주요 성공 기준
+
+로그인 성공 시 **2가지 경로** 중 하나로 진입할 수 있습니다:
+
+#### 경로 1: Workspace Drive 페이지 진입
 ✅ **1단계: URL 변경 확인**
 - 로그인 성공 시 `https://www.miricanvas.com/workspace/drive`로 리다이렉트
 - URL이 위 주소와 정확히 일치해야 함
@@ -111,73 +115,155 @@ div[class$='WorkspaceHeaderVC__ProfilePhotoPlaceholderViewContainer-sc-685879eb-
 ```
 **용도:** 프로필 메뉴 접근
 
+#### 경로 2: 사용자 분야 선택 페이지 진입
+✅ **1단계: URL 변경 확인**
+- 로그인 성공 시 `https://www.miricanvas.com/`로 리다이렉트 (메인 페이지)
+- URL이 위 주소와 정확히 일치해야 함
+
+✅ **2단계: 사용자 분야 선택 페이지 UI 요소 존재 확인**
+
+로그인 성공 후 다음 요소들이 모두 존재해야 **PASS**:
+
+#### 2.1.7 헤더 텍스트
+```typescript
+page.locator("h1:has-text('어떤 분야에서 미리캔버스를 사용하시나요?')")
+```
+**내용:** "어떤 분야에서 미리캔버스를 사용하시나요?"
+
+#### 2.1.8 설명 텍스트
+```typescript
+page.locator("p:has-text('알려주시면 딱 맞는 템플릿과 기능을 추천해드릴 수 있어요!')")
+```
+**내용:** "알려주시면 딱 맞는 템플릿과 기능을 추천해드릴 수 있어요!"
+
+#### 2.1.9 사용자 분야 선택 버튼 (6개)
+```typescript
+// 학생 버튼
+page.locator("button[name='STUDENT']:has-text('학생')")
+
+// 교육기관 종사자 버튼
+page.locator("button[name='EDUCATION']:has-text('교육기관 종사자')")
+
+// 개인사업자/소상공인 버튼
+page.locator("button[name='BUSINESS']:has-text('개인사업자')")
+
+// 일반 기업/직장인 버튼
+page.locator("button[name='COMPANY']:has-text('일반 기업')")
+
+// 공공기관/비영리단체 버튼
+page.locator("button[name='INSTITUTION']:has-text('공공기관')")
+
+// 개인 사용자 버튼
+page.locator("button[name='INDIVIDUAL']:has-text('개인 사용자')")
+```
+
 ### 2.2 Pass 판정 로직
 ```
+// 먼저 로그인 후 URL 확인 (10초 대기)
+WAIT for URL change (timeout: 10s)
+
 IF (URL === 'https://www.miricanvas.com/workspace/drive')
-  AND (유저 프로필 아이콘 존재)
-  AND (검색 텍스트 박스 존재)
-  AND (템플릿 보러가기 버튼 존재)
-  AND (새 디자인 만들기 버튼 존재)
-  AND (알림 버튼 존재)
-  AND (프로필 홀더 버튼 존재)
-THEN
-  ✅ PASS: 로그인 성공
+  THEN
+    // 경로 1: Workspace Drive 페이지 검증
+    IF (유저 프로필 아이콘 존재)
+      AND (검색 텍스트 박스 존재)
+      AND (템플릿 보러가기 버튼 존재)
+      AND (새 디자인 만들기 버튼 존재)
+      AND (알림 버튼 존재)
+      AND (프로필 홀더 버튼 존재)
+    THEN
+      ✅ PASS: 로그인 성공 (경로 1 - Workspace Drive)
+    ELSE
+      ❌ FAIL: Workspace 페이지 UI 요소 누락
+    END IF
+
+ELSE IF (URL === 'https://www.miricanvas.com/')
+  THEN
+    // 경로 2: 사용자 분야 선택 페이지 검증
+    IF (헤더 텍스트 "어떤 분야에서 미리캔버스를 사용하시나요?" 존재)
+      AND (설명 텍스트 존재)
+      AND (STUDENT 버튼 존재)
+      AND (EDUCATION 버튼 존재)
+      AND (BUSINESS 버튼 존재)
+      AND (COMPANY 버튼 존재)
+      AND (INSTITUTION 버튼 존재)
+      AND (INDIVIDUAL 버튼 존재)
+    THEN
+      ✅ PASS: 로그인 성공 (경로 2 - 사용자 분야 선택)
+    ELSE
+      ❌ FAIL: 사용자 분야 선택 페이지 UI 요소 누락
+    END IF
+
 ELSE
-  ❌ FAIL: 로그인 실패 또는 불완전한 페이지 로드
+  ❌ FAIL: 예상하지 못한 URL로 리다이렉트됨
 END IF
 ```
 
 ### 2.3 Playwright 구현 예시
+
 ```typescript
-// 1단계: URL 변경 확인
-await page.waitForURL('https://www.miricanvas.com/workspace/drive', {
-  timeout: 10000
-});
+// 로그인 버튼 클릭 후 URL 변경 대기 (10초)
+await page.click(loginButtonSelector);
 
-// URL 검증
+// 10초 동안 URL 변경 대기
+await page.waitForLoadState('networkidle', { timeout: 10000 });
 const currentURL = page.url();
-expect(currentURL).toBe('https://www.miricanvas.com/workspace/drive');
 
-// 2단계: 주요 UI 요소 존재 확인
-const elements = {
-  userProfileIcon: page.locator("div[class='user_profile_icon']"),
-  searchBox: page.locator("input[placeholder='검색']"),
-  templateButton: page.locator("div[class$='WorkspaceTemplateButtonView__Container-sc-60c1e03-0 gEPHoE']"),
-  newDesignButton: page.locator("div[class$='workspace_new_design_button_view']"),
-  notificationButton: page.locator("div[class$='workspace_notification_button_view']"),
-  profileHolder: page.locator("div[class$='WorkspaceHeaderVC__ProfilePhotoPlaceholderViewContainer-sc-685879eb-0 gqfMqk']")
-};
+// 경로 1: Workspace Drive 페이지
+if (currentURL === 'https://www.miricanvas.com/workspace/drive') {
+  console.log('경로 1 감지: Workspace Drive 페이지');
 
-// 모든 요소가 표시될 때까지 대기 (각각 5초 타임아웃)
-await Promise.all([
-  elements.userProfileIcon.waitFor({ state: 'visible', timeout: 5000 }),
-  elements.searchBox.waitFor({ state: 'visible', timeout: 5000 }),
-  elements.templateButton.waitFor({ state: 'visible', timeout: 5000 }),
-  elements.newDesignButton.waitFor({ state: 'visible', timeout: 5000 }),
-  elements.notificationButton.waitFor({ state: 'visible', timeout: 5000 }),
-  elements.profileHolder.waitFor({ state: 'visible', timeout: 5000 })
-]);
+  const elements = {
+    userProfileIcon: page.locator("div[class*='user_profile_icon']"),
+    searchBox: page.locator("input[placeholder='검색']"),
+    templateButton: page.locator("div[class*='WorkspaceTemplateButtonView']"),
+    newDesignButton: page.locator("div[class*='workspace_new_design_button']"),
+    notificationButton: page.locator("div[class*='workspace_notification_button']"),
+    profileHolder: page.locator("div[class*='WorkspaceHeaderVC__ProfilePhotoPlaceholder']")
+  };
 
-// 모든 요소가 존재하는지 확인
-const allElementsVisible = await Promise.all([
-  elements.userProfileIcon.isVisible(),
-  elements.searchBox.isVisible(),
-  elements.templateButton.isVisible(),
-  elements.newDesignButton.isVisible(),
-  elements.notificationButton.isVisible(),
-  elements.profileHolder.isVisible()
-]);
+  await Promise.all([
+    elements.userProfileIcon.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.searchBox.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.templateButton.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.newDesignButton.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.notificationButton.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.profileHolder.waitFor({ state: 'visible', timeout: 5000 })
+  ]);
 
-if (allElementsVisible.every(visible => visible === true)) {
-  console.log('✅ PASS: 로그인 성공 - 모든 필수 요소 확인됨');
-} else {
-  console.log('❌ FAIL: 일부 필수 요소가 누락됨');
-  allElementsVisible.forEach((visible, index) => {
-    const elementNames = ['유저 프로필 아이콘', '검색 박스', '템플릿 버튼', '새 디자인 버튼', '알림 버튼', '프로필 홀더'];
-    if (!visible) {
-      console.log(`  ❌ ${elementNames[index]} 누락`);
-    }
-  });
+  console.log('✅ PASS: 로그인 성공 (경로 1 - Workspace Drive)');
+}
+// 경로 2: 사용자 분야 선택 페이지
+else if (currentURL === 'https://www.miricanvas.com/') {
+  console.log('경로 2 감지: 사용자 분야 선택 페이지');
+
+  const elements = {
+    headerText: page.locator("h1:has-text('어떤 분야에서 미리캔버스를 사용하시나요?')"),
+    descriptionText: page.locator("p:has-text('알려주시면 딱 맞는 템플릿과 기능을 추천해드릴 수 있어요!')"),
+    studentButton: page.locator("button[name='STUDENT']:has-text('학생')"),
+    educationButton: page.locator("button[name='EDUCATION']:has-text('교육기관 종사자')"),
+    businessButton: page.locator("button[name='BUSINESS']:has-text('개인사업자')"),
+    companyButton: page.locator("button[name='COMPANY']:has-text('일반 기업')"),
+    institutionButton: page.locator("button[name='INSTITUTION']:has-text('공공기관')"),
+    individualButton: page.locator("button[name='INDIVIDUAL']:has-text('개인 사용자')")
+  };
+
+  await Promise.all([
+    elements.headerText.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.descriptionText.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.studentButton.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.educationButton.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.businessButton.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.companyButton.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.institutionButton.waitFor({ state: 'visible', timeout: 5000 }),
+    elements.individualButton.waitFor({ state: 'visible', timeout: 5000 })
+  ]);
+
+  console.log('✅ PASS: 로그인 성공 (경로 2 - 사용자 분야 선택)');
+}
+else {
+  console.log(`❌ FAIL: 예상하지 못한 URL - ${currentURL}`);
+  throw new Error(`예상하지 못한 URL로 리다이렉트됨: ${currentURL}`);
 }
 ```
 
@@ -185,6 +271,7 @@ if (allElementsVisible.every(visible => visible === true)) {
 
 **참고:** 미리캔버스는 동적 CSS 클래스를 사용하므로, 클래스명이 변경될 경우 다음 대체 셀렉터를 사용:
 
+#### 경로 1: Workspace Drive 페이지
 ```typescript
 // 유저 프로필 아이콘 - 클래스 부분 매칭
 page.locator("div[class*='user_profile_icon']")
@@ -203,6 +290,23 @@ page.locator("div[class*='workspace_notification_button']")
 
 // 프로필 홀더 - role 또는 aria 속성 사용 (있다면)
 page.locator("[role='button'][aria-label*='프로필']")
+```
+
+#### 경로 2: 사용자 분야 선택 페이지
+```typescript
+// 헤더 텍스트 - 텍스트 기반
+page.locator("h1:has-text('어떤 분야')")
+
+// 설명 텍스트 - 텍스트 기반
+page.locator("p:has-text('알려주시면')")
+
+// 버튼들 - name 속성 기반 (가장 안정적)
+page.locator("button[name='STUDENT']")
+page.locator("button[name='EDUCATION']")
+page.locator("button[name='BUSINESS']")
+page.locator("button[name='COMPANY']")
+page.locator("button[name='INSTITUTION']")
+page.locator("button[name='INDIVIDUAL']")
 ```
 
 ---
