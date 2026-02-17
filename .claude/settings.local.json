@@ -23,7 +23,12 @@
       "Bash(git:*)",
       "Bash(git commit:*)",
       "Bash(git checkout:*)",
-      "Bash(claude mcp add playwright -s user -- npx @executeautomation/playwright-mcp-server)"
+      "Bash(claude mcp add playwright -s user -- npx @executeautomation/playwright-mcp-server)",
+      "Bash(timeout:*)",
+      "Bash(exit 0)",
+      "Bash(dir \"C:\\Miricanvas_Project\\Docs\\Report\\Screenshots\")",
+      "Bash(dir \"C:\\Miricanvas_Project\\Docs\\TestScript\")",
+      "Bash(dir \"C:\\Miricanvas_Project\\Docs\\Report\")"
     ],
     "deny": [],
     "ask": []
