@@ -58,7 +58,8 @@ const SELECTORS = {
     passwordInput: "input[name='password']",
     submitButton: "form button:has-text('로그인')",
     errorMessage: "span[data-f='Span-ba96']:has-text('공백 없이 입력해주세요')",
-    errorContainer: ".sc-267d8ce6-0.gGTyzN",
+    // 비밀번호 입력 필드의 부모 컨테이너
+    passwordInputContainer: "form > div:nth-child(2) > div[data-f='StyledDiv-3ec0']",
   },
 };
 
@@ -226,22 +227,25 @@ async function runTest(): Promise<void> {
       actual: errorText,
     });
 
-    // 에러 컨테이너 클래스 변경 확인
-    log("에러 컨테이너 클래스 변경 확인 중...", {
-      selector: SELECTORS.loginDialog.errorContainer,
-      expectedClass: ".sc-267d8ce6-0.gGTyzN",
+    // 비밀번호 입력 컨테이너 클래스 변경 확인
+    log("비밀번호 입력 컨테이너 클래스 변경 확인 중...", {
+      selector: SELECTORS.loginDialog.passwordInputContainer,
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
     });
 
-    const errorContainer = await page.waitForSelector(
-      SELECTORS.loginDialog.errorContainer,
-      {
-        timeout: TEST_CONFIG.timeouts.errorMessageVisible,
-        state: "visible",
-      }
-    );
+    const passwordInputContainer = page.locator(SELECTORS.loginDialog.passwordInputContainer);
+    const passwordContainerClass = await passwordInputContainer.getAttribute('class');
+    log(`비밀번호 컨테이너 클래스: "${passwordContainerClass}"`);
 
-    log("✅ 에러 컨테이너 클래스 변경 확인 성공", {
-      changedClass: ".sc-267d8ce6-0.gGTyzN",
+    if (!passwordContainerClass || !passwordContainerClass.includes('gGTyzN')) {
+      throw new Error(
+        `비밀번호 컨테이너 클래스가 에러 상태로 변경되지 않았습니다. 실제: "${passwordContainerClass}"`
+      );
+    }
+
+    log("✅ 비밀번호 입력 컨테이너 클래스 변경 확인 성공", {
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
+      actualClass: passwordContainerClass,
     });
 
     await takeScreenshot(page, "07-error-message-displayed", true);

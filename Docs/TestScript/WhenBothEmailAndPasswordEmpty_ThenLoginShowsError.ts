@@ -62,7 +62,10 @@ const SELECTORS = {
     emailErrorMessageContainer: ".sc-80ee1dde-1.hquGUb.sc-b888c254-0.dveCft",
     // 비밀번호 미입력 에러 메시지 (span 요소)
     passwordErrorMessage: "span[data-f='Span-ba96']:has-text('공백 없이 입력해주세요')",
-    errorContainer: ".sc-267d8ce6-0.gGTyzN",
+    // 이메일 입력 필드의 부모 컨테이너
+    emailInputContainer: "form > div:nth-child(1) > div[data-f='StyledDiv-3ec0']",
+    // 비밀번호 입력 필드의 부모 컨테이너
+    passwordInputContainer: "form > div:nth-child(2) > div[data-f='StyledDiv-3ec0']",
   },
 };
 
@@ -257,22 +260,46 @@ async function runTest(): Promise<void> {
       actual: passwordErrorText,
     });
 
-    // 에러 컨테이너 클래스 변경 확인
-    log("에러 컨테이너 클래스 변경 확인 중...", {
-      selector: SELECTORS.loginDialog.errorContainer,
-      expectedClass: ".sc-267d8ce6-0.gGTyzN",
+    // 이메일 입력 컨테이너 클래스 변경 확인
+    log("이메일 입력 컨테이너 클래스 변경 확인 중...", {
+      selector: SELECTORS.loginDialog.emailInputContainer,
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
     });
 
-    const errorContainer = await page.waitForSelector(
-      SELECTORS.loginDialog.errorContainer,
-      {
-        timeout: TEST_CONFIG.timeouts.errorMessageVisible,
-        state: "visible",
-      }
-    );
+    const emailInputContainerLocator = page.locator(SELECTORS.loginDialog.emailInputContainer);
+    const emailContainerClass = await emailInputContainerLocator.getAttribute('class');
+    log(`이메일 컨테이너 클래스: "${emailContainerClass}"`);
 
-    log("✅ 에러 컨테이너 클래스 변경 확인 성공", {
-      changedClass: ".sc-267d8ce6-0.gGTyzN",
+    if (!emailContainerClass || !emailContainerClass.includes('gGTyzN')) {
+      throw new Error(
+        `이메일 컨테이너 클래스가 에러 상태로 변경되지 않았습니다. 실제: "${emailContainerClass}"`
+      );
+    }
+
+    log("✅ 이메일 입력 컨테이너 클래스 변경 확인 성공", {
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
+      actualClass: emailContainerClass,
+    });
+
+    // 비밀번호 입력 컨테이너 클래스 변경 확인
+    log("비밀번호 입력 컨테이너 클래스 변경 확인 중...", {
+      selector: SELECTORS.loginDialog.passwordInputContainer,
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
+    });
+
+    const passwordInputContainerLocator = page.locator(SELECTORS.loginDialog.passwordInputContainer);
+    const passwordContainerClass = await passwordInputContainerLocator.getAttribute('class');
+    log(`비밀번호 컨테이너 클래스: "${passwordContainerClass}"`);
+
+    if (!passwordContainerClass || !passwordContainerClass.includes('gGTyzN')) {
+      throw new Error(
+        `비밀번호 컨테이너 클래스가 에러 상태로 변경되지 않았습니다. 실제: "${passwordContainerClass}"`
+      );
+    }
+
+    log("✅ 비밀번호 입력 컨테이너 클래스 변경 확인 성공", {
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
+      actualClass: passwordContainerClass,
     });
 
     await takeScreenshot(page, "07-error-message-displayed", true);

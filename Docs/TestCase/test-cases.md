@@ -92,7 +92,7 @@
 | **Title** | 잘못된 이메일 주소로 로그인 실패 |
 | **Precondition** | - 로그인 다이얼로그 열림<br>- 이메일 로그인 폼 표시 상태 |
 | **Test Step** | 1. 이메일 입력 필드에 존재하지 않는 이메일 `invalid@test.com` 입력<br>2. 비밀번호 입력 필드에 임의의 비밀번호 입력<br>3. "로그인" 버튼 클릭<br>4. 5초 대기 후 결과 확인 |
-| **Expected Result** | - URL이 변경되지 않음 (`https://www.miricanvas.com/ko` 유지)<br>- **에러 메시지 표시**: `span[data-f='Span-ba96']` 내 "존재하지 않는 이메일입니다." 텍스트 표시<br>- **에러 컨테이너 클래스 변경**: `.sc-267d8ce6-0.ejTrKt` → `.sc-267d8ce6-0.gGTyzN`<br>- 로그인 다이얼로그가 닫히지 않음<br>- 입력 필드가 활성 상태로 유지 |
+| **Expected Result** | - URL이 변경되지 않음 (`https://www.miricanvas.com/ko` 유지)<br>- **에러 메시지 표시**: "존재하지 않는 이메일입니다." (#text 노드로 표시)<br>- **이메일 입력 컨테이너 클래스 변경**: `form > div:nth-child(1) > div[data-f='StyledDiv-3ec0']`의 클래스가 `sc-267d8ce6-0 ejTrKt` → `sc-267d8ce6-0 gGTyzN`으로 변경<br>- 로그인 다이얼로그가 닫히지 않음<br>- 입력 필드가 활성 상태로 유지 |
 
 #### TC-EMAIL-007 🔴 ✅
 | 항목 | 내용 |
@@ -101,7 +101,7 @@
 | **Title** | 잘못된 비밀번호로 로그인 실패 |
 | **Precondition** | - 로그인 다이얼로그 열림<br>- 이메일 로그인 폼 표시 상태 |
 | **Test Step** | 1. 이메일 입력 필드에 유효한 이메일 `lhb0269@naver.com` 입력<br>2. 비밀번호 입력 필드에 잘못된 비밀번호 `wrongpassword123` 입력<br>3. "로그인" 버튼 클릭<br>4. 5초 대기 후 결과 확인 |
-| **Expected Result** | - URL이 변경되지 않음<br>- **에러 메시지 표시**: `span[data-f='Span-ba96']` 내 "잘못된 비밀번호입니다." 텍스트 표시<br>- **에러 컨테이너 클래스 변경**: `.sc-267d8ce6-0.ejTrKt` → `.sc-267d8ce6-0.gGTyzN`<br>- 로그인 다이얼로그가 닫히지 않음<br>- 비밀번호 필드가 초기화되거나 유지됨 |
+| **Expected Result** | - URL이 변경되지 않음<br>- **에러 메시지 표시**: `span[data-f='Span-ba96']` 내 "잘못된 비밀번호입니다." 텍스트 표시<br>- **비밀번호 입력 컨테이너 클래스 변경**: `form > div:nth-child(2) > div[data-f='StyledDiv-3ec0']`의 클래스가 `sc-267d8ce6-0 ejTrKt` → `sc-267d8ce6-0 gGTyzN`으로 변경<br>- 로그인 다이얼로그가 닫히지 않음<br>- 비밀번호 필드가 초기화되거나 유지됨 |
 
 #### TC-EMAIL-008 🔴 ✅
 | 항목 | 내용 |
@@ -110,7 +110,7 @@
 | **Title** | 이메일 미입력 시 로그인 불가 |
 | **Precondition** | - 로그인 다이얼로그 열림<br>- 이메일 로그인 폼 표시 상태 |
 | **Test Step** | 1. 이메일 입력 필드를 빈 상태로 유지<br>2. 비밀번호 입력 필드에 임의 비밀번호 입력<br>3. "로그인" 버튼 클릭 |
-| **Expected Result** | - **에러 메시지 표시**: "이메일 주소를 입력해주세요." (#text 노드로 표시)<br>- **에러 컨테이너 클래스 변경**: `.sc-267d8ce6-0.ejTrKt` → `.sc-267d8ce6-0.gGTyzN`<br>- URL이 변경되지 않음 (`https://www.miricanvas.com/ko` 유지)<br>- 로그인 다이얼로그가 닫히지 않음 |
+| **Expected Result** | - **에러 메시지 표시**: "이메일 주소를 입력해주세요." (#text 노드로 표시)<br>- **이메일 입력 컨테이너 클래스 변경**: `form > div:nth-child(1) > div[data-f='StyledDiv-3ec0']`의 클래스가 `sc-267d8ce6-0 ejTrKt` → `sc-267d8ce6-0 gGTyzN`으로 변경<br>- URL이 변경되지 않음 (`https://www.miricanvas.com/ko` 유지)<br>- 로그인 다이얼로그가 닫히지 않음 |
 
 #### TC-EMAIL-009 🔴 ✅
 | 항목 | 내용 |
@@ -119,7 +119,7 @@
 | **Title** | 비밀번호 미입력 시 로그인 불가 |
 | **Precondition** | - 로그인 다이얼로그 열림<br>- 이메일 로그인 폼 표시 상태 |
 | **Test Step** | 1. 이메일 입력 필드에 `lhb0269@naver.com` 입력<br>2. 비밀번호 입력 필드를 빈 상태로 유지<br>3. "로그인" 버튼 클릭 |
-| **Expected Result** | - **에러 메시지 표시**: `span[data-f='Span-ba96']` 내 "공백 없이 입력해주세요." 텍스트 표시<br>- **에러 컨테이너 클래스 변경**: `.sc-267d8ce6-0.ejTrKt` → `.sc-267d8ce6-0.gGTyzN`<br>- URL이 변경되지 않음 (`https://www.miricanvas.com/ko` 유지)<br>- 로그인 다이얼로그가 닫히지 않음 |
+| **Expected Result** | - **에러 메시지 표시**: `span[data-f='Span-ba96']` 내 "공백 없이 입력해주세요." 텍스트 표시<br>- **비밀번호 입력 컨테이너 클래스 변경**: `form > div:nth-child(2) > div[data-f='StyledDiv-3ec0']`의 클래스가 `sc-267d8ce6-0 ejTrKt` → `sc-267d8ce6-0 gGTyzN`으로 변경<br>- URL이 변경되지 않음 (`https://www.miricanvas.com/ko` 유지)<br>- 로그인 다이얼로그가 닫히지 않음 |
 
 #### TC-EMAIL-010 🔴 ✅
 | 항목 | 내용 |
@@ -128,7 +128,7 @@
 | **Title** | 이메일과 비밀번호 모두 미입력 시 로그인 불가 |
 | **Precondition** | - 로그인 다이얼로그 열림<br>- 이메일 로그인 폼 표시 상태 |
 | **Test Step** | 1. 이메일 입력 필드를 빈 상태로 유지<br>2. 비밀번호 입력 필드를 빈 상태로 유지<br>3. "로그인" 버튼 클릭 |
-| **Expected Result** | - **이메일 에러 메시지 표시**: "이메일 주소를 입력해주세요." (#text 노드로 표시)<br>- **비밀번호 에러 메시지 표시**: `span[data-f='Span-ba96']` 내 "공백 없이 입력해주세요." 텍스트 표시<br>- **에러 컨테이너 클래스 변경**: `.sc-267d8ce6-0.ejTrKt` → `.sc-267d8ce6-0.gGTyzN`<br>- URL이 변경되지 않음 (`https://www.miricanvas.com/ko` 유지)<br>- 로그인 다이얼로그가 닫히지 않음 |
+| **Expected Result** | - **이메일 에러 메시지 표시**: "이메일 주소를 입력해주세요." (#text 노드로 표시)<br>- **비밀번호 에러 메시지 표시**: `span[data-f='Span-ba96']` 내 "공백 없이 입력해주세요." 텍스트 표시<br>- **이메일 입력 컨테이너 클래스 변경**: `form > div:nth-child(1) > div[data-f='StyledDiv-3ec0']`의 클래스가 `sc-267d8ce6-0 ejTrKt` → `sc-267d8ce6-0 gGTyzN`으로 변경<br>- **비밀번호 입력 컨테이너 클래스 변경**: `form > div:nth-child(2) > div[data-f='StyledDiv-3ec0']`의 클래스가 `sc-267d8ce6-0 ejTrKt` → `sc-267d8ce6-0 gGTyzN`으로 변경<br>- URL이 변경되지 않음 (`https://www.miricanvas.com/ko` 유지)<br>- 로그인 다이얼로그가 닫히지 않음 |
 
 #### TC-EMAIL-011 🔴 ✅
 | 항목 | 내용 |

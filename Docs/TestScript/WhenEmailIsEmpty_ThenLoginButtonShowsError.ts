@@ -59,7 +59,8 @@ const SELECTORS = {
     submitButton: "form button:has-text('로그인')",
     // 에러 메시지는 #text 노드이므로 부모 컨테이너로 찾음
     errorMessageContainer: ".sc-80ee1dde-1.hquGUb.sc-b888c254-0.dveCft",
-    errorContainer: ".sc-267d8ce6-0.gGTyzN",
+    // 이메일 입력 필드의 부모 컨테이너
+    emailInputContainer: "form > div:nth-child(1) > div[data-f='StyledDiv-3ec0']",
   },
 };
 
@@ -227,22 +228,25 @@ async function runTest(): Promise<void> {
       actual: errorText,
     });
 
-    // 에러 컨테이너 클래스 변경 확인
-    log("에러 컨테이너 클래스 변경 확인 중...", {
-      selector: SELECTORS.loginDialog.errorContainer,
-      expectedClass: ".sc-267d8ce6-0.gGTyzN",
+    // 이메일 입력 컨테이너 클래스 변경 확인
+    log("이메일 입력 컨테이너 클래스 변경 확인 중...", {
+      selector: SELECTORS.loginDialog.emailInputContainer,
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
     });
 
-    const errorContainer = await page.waitForSelector(
-      SELECTORS.loginDialog.errorContainer,
-      {
-        timeout: TEST_CONFIG.timeouts.errorMessageVisible,
-        state: "visible",
-      }
-    );
+    const emailInputContainer = page.locator(SELECTORS.loginDialog.emailInputContainer);
+    const emailContainerClass = await emailInputContainer.getAttribute('class');
+    log(`이메일 컨테이너 클래스: "${emailContainerClass}"`);
 
-    log("✅ 에러 컨테이너 클래스 변경 확인 성공", {
-      changedClass: ".sc-267d8ce6-0.gGTyzN",
+    if (!emailContainerClass || !emailContainerClass.includes('gGTyzN')) {
+      throw new Error(
+        `이메일 컨테이너 클래스가 에러 상태로 변경되지 않았습니다. 실제: "${emailContainerClass}"`
+      );
+    }
+
+    log("✅ 이메일 입력 컨테이너 클래스 변경 확인 성공", {
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
+      actualClass: emailContainerClass,
     });
 
     await takeScreenshot(page, "07-error-message-displayed", true);
