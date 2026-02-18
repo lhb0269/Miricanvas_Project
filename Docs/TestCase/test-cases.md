@@ -118,8 +118,8 @@
 | **TC ID** | TC-EMAIL-009 |
 | **Title** | 비밀번호 미입력 시 로그인 불가 |
 | **Precondition** | - 로그인 다이얼로그 열림<br>- 이메일 로그인 폼 표시 상태 |
-| **Test Step** | 1. 이메일 입력 필드에 `lhb0269@naver.com` 입력<br>2. 비밀번호 입력 필드를 빈 상태로 유지<br>3. "로그인" 버튼 클릭 시도 |
-| **Expected Result** | - 로그인 버튼이 비활성화 상태이거나<br>- 클릭 시 유효성 검사 에러 메시지 표시 (예: "비밀번호를 입력해주세요")<br>- URL이 변경되지 않음<br>- 로그인 시도가 진행되지 않음 |
+| **Test Step** | 1. 이메일 입력 필드에 `lhb0269@naver.com` 입력<br>2. 비밀번호 입력 필드를 빈 상태로 유지<br>3. "로그인" 버튼 클릭 |
+| **Expected Result** | - **에러 메시지 표시**: `span[data-f='Span-ba96']` 내 "공백 없이 입력해주세요." 텍스트 표시<br>- **에러 컨테이너 클래스 변경**: `.sc-267d8ce6-0.ejTrKt` → `.sc-267d8ce6-0.gGTyzN`<br>- URL이 변경되지 않음 (`https://www.miricanvas.com/ko` 유지)<br>- 로그인 다이얼로그가 닫히지 않음 |
 
 #### TC-EMAIL-010 🔴 ✅
 | 항목 | 내용 |
