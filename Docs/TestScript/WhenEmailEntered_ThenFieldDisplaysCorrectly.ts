@@ -1,64 +1,56 @@
 /**
- * TC-EMAIL-003: 이메일 입력 필드 정상 작동 확인
+ * Test Case: TC-EMAIL-003
+ * Test Name: WhenEmailEntered_ThenFieldDisplaysCorrectly
+ * Description: 이메일 입력 필드 정상 작동 확인
  *
- * @description
- * 미리캔버스 로그인 다이얼로그에서 이메일 입력 필드에 유효한 이메일을 입력했을 때
- * 텍스트가 정상적으로 표시되고 placeholder가 사라지는지 검증하는 테스트
+ * Test Steps:
+ * 1. 미리캔버스 홈페이지 접속
+ * 2. 로그인 다이얼로그 열기
+ * 3. 이메일 로그인 버튼 클릭
+ * 4. 이메일 입력 필드에 포커스
+ * 5. 유효한 이메일 주소 "lhb0269@naver.com" 입력
+ * 6. 입력된 값 확인
  *
- * @testCase
- * - Precondition: 로그인 다이얼로그 열림, 이메일 로그인 폼 표시 상태
- * - Action: 이메일 입력 필드에 유효한 이메일 주소 입력
- * - Expected: 입력값이 필드에 표시되고 placeholder가 사라짐
- *
- * @pattern AAA (Arrange-Act-Assert)
- * @principle FIRST (Fast, Isolated, Repeatable, Self-validating, Timely)
+ * Expected Result:
+ * - 이메일 입력 필드에 텍스트가 정상적으로 입력됨
+ * - 입력한 이메일 주소가 필드에 표시됨
+ * - placeholder 텍스트가 사라짐
  */
 
 import { chromium, Browser, Page } from 'playwright';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// ============================================================================
-// 테스트 설정 및 상수
-// ============================================================================
-
+// ==================== 설정 영역 ====================
 const TEST_CONFIG = {
-  // 테스트 대상 URL
-  baseUrl: 'https://www.miricanvas.com/ko',
-
-  // 테스트 데이터
-  testData: {
-    email: 'lhb0269@naver.com'
-  },
-
-  // 타임아웃 설정
+  url: "https://www.miricanvas.com/ko",
+  headless: false,
+  viewport: { width: 1280, height: 720 },
   timeouts: {
-    navigation: 10000,
-    elementVisible: 5000,
-    inputDelay: 1000
+    navigation: 30000,
+    loginButtonVisible: 10000,
+    loginDialogVisible: 5000,
+    emailInputVisible: 5000,
   },
-
-  // 스크린샷 저장 경로
-  screenshotDir: 'C:\\Miricanvas_Project\\Docs\\Report\\Screenshots',
-  reportDir: 'C:\\Miricanvas_Project\\Docs\\Report'
+  testData: {
+    email: "lhb0269@naver.com",
+  },
+  screenshots: {
+    enabled: true,
+    dir: "C:\\Miricanvas_Project\\Docs\\Report\\Screenshots",
+  },
 };
 
-// ============================================================================
-// CSS 셀렉터 정의
-// ============================================================================
-
+// ==================== 셀렉터 영역 ====================
 const SELECTORS = {
-  // 헤더 관련 셀렉터
-  header: {
+  homepage: {
     loginButton: "button:has-text('로그인'):visible"
   },
-
-  // 로그인 다이얼로그 셀렉터
   loginDialog: {
     container: "div[role='dialog']",
     emailButton: "button:has-text('이메일')",
-    emailInput: "input[name='email']"
-  }
+    emailInput: "input[name='email']",
+  },
 };
 
 // ============================================================================
@@ -220,8 +212,8 @@ async function runTest(): Promise<TestResult> {
       browser = await chromium.launch({ headless: false });
       page = await browser.newPage();
 
-      log(`메인 페이지 접속: ${TEST_CONFIG.baseUrl}`);
-      await page.goto(TEST_CONFIG.baseUrl, { waitUntil: 'networkidle', timeout: TEST_CONFIG.timeouts.navigation });
+      log(`메인 페이지 접속: ${TEST_CONFIG.url}`);
+      await page.goto(TEST_CONFIG.url, { waitUntil: 'domcontentloaded', timeout: TEST_CONFIG.timeouts.navigation });
 
       // 페이지 로드 후 추가 대기
       await page.waitForTimeout(2000);
@@ -246,11 +238,11 @@ async function runTest(): Promise<TestResult> {
 
     try {
       log('Step 1: 로그인 버튼 클릭 시도');
-      await page.click(SELECTORS.header.loginButton);
+      await page.click(SELECTORS.homepage.loginButton);
 
       // 로그인 다이얼로그가 열릴 때까지 대기
       await page.waitForSelector(SELECTORS.loginDialog.container, {
-        timeout: TEST_CONFIG.timeouts.elementVisible,
+        timeout: TEST_CONFIG.timeouts.loginDialogVisible,
         state: 'visible'
       });
 
@@ -275,12 +267,12 @@ async function runTest(): Promise<TestResult> {
 
     try {
       log('Step 2: 이메일 로그인 버튼 클릭 시도');
-      await page.waitForSelector(SELECTORS.loginDialog.emailButton, { timeout: TEST_CONFIG.timeouts.elementVisible });
+      await page.waitForSelector(SELECTORS.loginDialog.emailButton, { timeout: TEST_CONFIG.timeouts.loginDialogVisible });
       await page.click(SELECTORS.loginDialog.emailButton);
 
       // 이메일 입력 필드가 표시될 때까지 대기
       await page.waitForSelector(SELECTORS.loginDialog.emailInput, {
-        timeout: TEST_CONFIG.timeouts.elementVisible,
+        timeout: TEST_CONFIG.timeouts.emailInputVisible,
         state: 'visible'
       });
 
@@ -296,7 +288,7 @@ async function runTest(): Promise<TestResult> {
     }
 
     // 이메일 입력 전 스크린샷 캡처
-    const beforeInputScreenshot = `${TEST_CONFIG.screenshotDir}\\before-email-input-${getTimestamp()}.png`;
+    const beforeInputScreenshot = `${TEST_CONFIG.screenshots.dir}\\before-email-input-${getTimestamp()}.png`;
     log(`스크린샷 캡처: ${beforeInputScreenshot}`);
     await page.screenshot({ path: beforeInputScreenshot, fullPage: true });
     testResult.screenshots.push(beforeInputScreenshot);
@@ -357,7 +349,7 @@ async function runTest(): Promise<TestResult> {
     }
 
     // 이메일 입력 후 스크린샷 캡처
-    const afterInputScreenshot = `${TEST_CONFIG.screenshotDir}\\after-email-input-${getTimestamp()}.png`;
+    const afterInputScreenshot = `${TEST_CONFIG.screenshots.dir}\\after-email-input-${getTimestamp()}.png`;
     log(`스크린샷 캡처: ${afterInputScreenshot}`);
     await page.screenshot({ path: afterInputScreenshot, fullPage: true });
     testResult.screenshots.push(afterInputScreenshot);
@@ -489,18 +481,12 @@ async function runTest(): Promise<TestResult> {
   return testResult;
 }
 
-// ============================================================================
-// 테스트 실행 및 보고서 생성
-// ============================================================================
-
+// ==================== 테스트 실행 ====================
 (async () => {
   try {
-    // 스크린샷 및 보고서 디렉토리 생성
-    if (!fs.existsSync(TEST_CONFIG.screenshotDir)) {
-      fs.mkdirSync(TEST_CONFIG.screenshotDir, { recursive: true });
-    }
-    if (!fs.existsSync(TEST_CONFIG.reportDir)) {
-      fs.mkdirSync(TEST_CONFIG.reportDir, { recursive: true });
+    // 스크린샷 디렉토리 생성
+    if (!fs.existsSync(TEST_CONFIG.screenshots.dir)) {
+      fs.mkdirSync(TEST_CONFIG.screenshots.dir, { recursive: true });
     }
 
     // 테스트 실행
@@ -508,7 +494,11 @@ async function runTest(): Promise<TestResult> {
 
     // 보고서 생성
     const report = generateReport(result);
-    const reportPath = `${TEST_CONFIG.reportDir}\\TC-EMAIL-003-Report-${getTimestamp()}.md`;
+    const reportDir = 'C:\\Miricanvas_Project\\Docs\\Report';
+    if (!fs.existsSync(reportDir)) {
+      fs.mkdirSync(reportDir, { recursive: true });
+    }
+    const reportPath = `${reportDir}\\TC-EMAIL-003-Report-${getTimestamp()}.md`;
 
     // 보고서를 파일로 저장
     fs.writeFileSync(reportPath, report, 'utf-8');

@@ -1,16 +1,25 @@
 /**
- * TC-EMAIL-005: 로그인 후 워크스페이스 페이지 UI 요소 검증
+ * Test Case: TC-EMAIL-005
+ * Test Name: WhenLoginSuccess_ThenWorkspaceUIElementsDisplayed
+ * Description: 로그인 후 워크스페이스 페이지 UI 요소 검증
  *
- * @description
- * 유효한 계정으로 로그인 성공 후 워크스페이스 페이지의 필수 UI 요소가 모두 표시되는지 검증하는 테스트
+ * Test Steps:
+ * 1. 미리캔버스 홈페이지 접속
+ * 2. 로그인 다이얼로그 열기
+ * 3. 이메일 로그인 버튼 클릭
+ * 4. 유효한 이메일/비밀번호 입력
+ * 5. 로그인 버튼 클릭
+ * 6. 워크스페이스 페이지 UI 요소 확인
  *
- * @testCase
- * - Precondition: 로그아웃 상태, 유효한 계정 정보 보유
- * - Action: 이메일/비밀번호 입력 후 로그인
- * - Expected: 워크스페이스 페이지의 6개 필수 UI 요소가 15초 이내에 모두 표시됨
- *
- * @pattern AAA (Arrange-Act-Assert)
- * @principle FIRST (Fast, Isolated, Repeatable, Self-validating, Timely)
+ * Expected Result:
+ * - 워크스페이스 페이지 또는 사용자 분야 선택 페이지로 이동
+ * - 다음 UI 요소가 15초 이내에 표시됨:
+ *   1. 유저 프로필 아이콘 (사이드바)
+ *   2. 검색 텍스트 박스 (상단)
+ *   3. 템플릿 보러가기 버튼
+ *   4. 새 디자인 만들기 버튼
+ *   5. 알림 버튼
+ *   6. 프로필 홀더 버튼
  */
 
 import { chromium, Browser, Page } from 'playwright';

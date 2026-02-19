@@ -1,17 +1,18 @@
 /**
- * TC-EMAIL-002: 로그인 다이얼로그 정상 표시 확인
+ * Test Case: TC-EMAIL-002
+ * Test Name: WhenLoginButtonClicked_ThenDialogDisplaysCorrectly
+ * Description: 로그인 다이얼로그 정상 표시 확인
  *
- * @description
- * 미리캔버스 메인 페이지에서 로그인 버튼 클릭 후 로그인 다이얼로그가 정상적으로
- * 표시되고 필수 UI 요소들이 모두 존재하는지 검증하는 테스트
+ * Test Steps:
+ * 1. 미리캔버스 홈페이지 접속
+ * 2. 메인 페이지 우측 상단 "로그인" 버튼 클릭
+ * 3. 다이얼로그 내 요소 확인
  *
- * @testCase
- * - Precondition: 미리캔버스 메인 페이지 접속, 로그아웃 상태
- * - Action: 메인 페이지 우측 상단 로그인 버튼 클릭
- * - Expected: 로그인 다이얼로그 표시 및 필수 UI 요소 확인
- *
- * @pattern AAA (Arrange-Act-Assert)
- * @principle FIRST (Fast, Isolated, Repeatable, Self-validating, Timely)
+ * Expected Result:
+ * - 로그인 다이얼로그가 화면 중앙에 표시됨
+ * - 다이얼로그 내 "이메일로 시작하기" 버튼 존재
+ * - 소셜 로그인 버튼들 표시 (네이버, 구글, 카카오, 페이스북, 웨일, 애플)
+ * - 다이얼로그 닫기(X) 버튼 존재
  */
 
 import { chromium, Browser, Page } from 'playwright';
