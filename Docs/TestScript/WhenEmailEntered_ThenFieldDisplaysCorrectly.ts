@@ -31,6 +31,7 @@ const TEST_CONFIG = {
     loginButtonVisible: 10000,
     loginDialogVisible: 5000,
     emailInputVisible: 5000,
+    inputDelay: 1000,
   },
   testData: {
     email: "lhb0269@naver.com",
