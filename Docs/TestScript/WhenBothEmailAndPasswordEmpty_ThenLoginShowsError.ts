@@ -1,0 +1,354 @@
+/**
+ * Test Case: TC-EMAIL-010
+ * Test Name: WhenBothEmailAndPasswordEmpty_ThenLoginShowsError
+ * Description: 이메일과 비밀번호 모두 미입력 시 로그인 불가
+ *
+ * Test Steps:
+ * 1. 미리캔버스 홈페이지 접속
+ * 2. 로그인 다이얼로그 열기
+ * 3. 이메일 필드를 비워둠 (미입력)
+ * 4. 비밀번호 필드를 비워둠 (미입력)
+ * 5. 로그인 버튼 클릭
+ * 6. 두 개의 에러 메시지 확인
+ * 7. 에러 컨테이너 클래스 변경 확인 (.sc-267d8ce6-0.ejTrKt → .sc-267d8ce6-0.gGTyzN)
+ *
+ * Expected Result:
+ * - 이메일 에러 메시지: "이메일 주소를 입력해주세요." (#text 노드)
+ * - 비밀번호 에러 메시지: span[data-f='Span-ba96'] 내 "공백 없이 입력해주세요."
+ * - 에러 컨테이너 클래스 변경: .sc-267d8ce6-0.ejTrKt → .sc-267d8ce6-0.gGTyzN
+ * - 로그인 실패 (다이얼로그 유지)
+ */
+
+import { chromium, Browser, Page } from 'playwright';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// ==================== 설정 영역 ====================
+const TEST_CONFIG = {
+  url: "https://www.miricanvas.com/ko",
+  headless: false,
+  viewport: { width: 1280, height: 720 },
+  timeouts: {
+    navigation: 30000,
+    loginButtonVisible: 10000,
+    loginDialogVisible: 5000,
+    emailInputVisible: 5000,
+    passwordInputVisible: 5000,
+    loginSubmitButtonVisible: 5000,
+    errorMessageVisible: 10000,
+  },
+  testData: {
+    email: "", // 빈 이메일
+    password: "", // 빈 비밀번호
+  },
+  screenshots: {
+    enabled: true,
+    dir: "C:\\Miricanvas_Project\\Docs\\Report\\Screenshots",
+  },
+};
+
+// ==================== 셀렉터 영역 ====================
+const SELECTORS = {
+  homepage: {
+    loginButton: "button:has-text('로그인'):visible"
+  },
+  loginDialog: {
+    container: "div[role='dialog']",
+    emailButton: "button:has-text('이메일')",
+    emailInput: "input[name='email']",
+    passwordInput: "input[name='password']",
+    submitButton: "form button:has-text('로그인')",
+    // 이메일 미입력 에러 메시지 (#text 노드)
+    emailErrorMessageContainer: ".sc-80ee1dde-1.hquGUb.sc-b888c254-0.dveCft",
+    // 비밀번호 미입력 에러 메시지 (span 요소)
+    passwordErrorMessage: "span[data-f='Span-ba96']:has-text('공백 없이 입력해주세요')",
+    // 이메일 입력 필드의 부모 컨테이너
+    emailInputContainer: "form > div:nth-child(1) > div[data-f='StyledDiv-3ec0']",
+    // 비밀번호 입력 필드의 부모 컨테이너
+    passwordInputContainer: "form > div:nth-child(2) > div[data-f='StyledDiv-3ec0']",
+  },
+};
+
+// ==================== 유틸리티 함수 ====================
+let stepCounter = 0;
+
+function log(message: string, data?: any): void {
+  stepCounter++;
+  const timestamp = new Date().toISOString();
+  console.log(`\n[STEP ${stepCounter}] [${timestamp}] ${message}`);
+  if (data !== undefined) {
+    console.log(JSON.stringify(data, null, 2));
+  }
+}
+
+async function takeScreenshot(
+  page: Page,
+  name: string,
+  fullPage: boolean = false
+): Promise<void> {
+  if (!TEST_CONFIG.screenshots.enabled) return;
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const filename = `TC-EMAIL-010-${name}-${timestamp}.png`;
+  const filepath = `${TEST_CONFIG.screenshots.dir}\\${filename}`;
+
+  await page.screenshot({ path: filepath, fullPage });
+  log(`스크린샷 저장됨: ${filename}`);
+}
+
+// ==================== 메인 테스트 함수 ====================
+async function runTest(): Promise<void> {
+  let browser: Browser | null = null;
+  let page: Page | null = null;
+
+  try {
+    // ========== Arrange: 테스트 준비 ==========
+    log("=== TC-EMAIL-010: 이메일과 비밀번호 모두 미입력 시 로그인 불가 테스트 시작 ===");
+
+    log("브라우저 실행 중...", {
+      headless: TEST_CONFIG.headless,
+    });
+
+    browser = await chromium.launch({
+      headless: TEST_CONFIG.headless,
+    });
+
+    page = await browser.newPage({
+      viewport: TEST_CONFIG.viewport,
+    });
+
+    log("미리캔버스 홈페이지 접속 중...", { url: TEST_CONFIG.url });
+    await page.goto(TEST_CONFIG.url, {
+      waitUntil: "domcontentloaded",
+      timeout: TEST_CONFIG.timeouts.navigation,
+    });
+    await takeScreenshot(page, "01-homepage-loaded");
+
+    // 홈페이지 로그인 버튼 대기 및 클릭
+    log("홈페이지 로그인 버튼 대기 중...", {
+      selector: SELECTORS.homepage.loginButton,
+    });
+    await page.waitForSelector(SELECTORS.homepage.loginButton, {
+      timeout: TEST_CONFIG.timeouts.loginButtonVisible,
+      state: "visible",
+    });
+
+    log("홈페이지 로그인 버튼 클릭");
+    await page.click(SELECTORS.homepage.loginButton);
+    await page.waitForTimeout(1000);
+    await takeScreenshot(page, "02-login-button-clicked");
+
+    // 로그인 다이얼로그 대기
+    log("로그인 다이얼로그 대기 중...", {
+      selector: SELECTORS.loginDialog.container,
+    });
+    await page.waitForSelector(SELECTORS.loginDialog.container, {
+      timeout: TEST_CONFIG.timeouts.loginDialogVisible,
+      state: "visible",
+    });
+    log("로그인 다이얼로그 표시됨");
+    await takeScreenshot(page, "03-login-dialog-visible");
+
+    // 이메일 로그인 버튼 클릭
+    log("이메일 로그인 버튼 클릭...", {
+      selector: SELECTORS.loginDialog.emailButton,
+    });
+    await page.click(SELECTORS.loginDialog.emailButton);
+    await page.waitForTimeout(1000);
+    await takeScreenshot(page, "04-email-login-selected");
+
+    // ========== Act: 테스트 실행 ==========
+    // 이메일 입력 필드 확인 (비워둠)
+    log("이메일 입력 필드 대기 중...", {
+      selector: SELECTORS.loginDialog.emailInput,
+    });
+    const emailInput = await page.waitForSelector(
+      SELECTORS.loginDialog.emailInput,
+      {
+        timeout: TEST_CONFIG.timeouts.emailInputVisible,
+        state: "visible",
+      }
+    );
+    log("이메일 입력 필드 확인됨 (비워둠)", {
+      email: TEST_CONFIG.testData.email,
+    });
+
+    // 비밀번호 입력 필드 확인 (비워둠)
+    log("비밀번호 입력 필드 대기 중...", {
+      selector: SELECTORS.loginDialog.passwordInput,
+    });
+    const passwordInput = await page.waitForSelector(
+      SELECTORS.loginDialog.passwordInput,
+      {
+        timeout: TEST_CONFIG.timeouts.passwordInputVisible,
+        state: "visible",
+      }
+    );
+    log("비밀번호 입력 필드 확인됨 (비워둠)", {
+      password: TEST_CONFIG.testData.password,
+    });
+    await takeScreenshot(page, "05-both-fields-empty");
+
+    // 로그인 버튼 클릭
+    log("로그인 버튼 대기 중...", {
+      selector: SELECTORS.loginDialog.submitButton,
+    });
+    await page.waitForSelector(SELECTORS.loginDialog.submitButton, {
+      timeout: TEST_CONFIG.timeouts.loginSubmitButtonVisible,
+      state: "visible",
+    });
+
+    log("로그인 버튼 클릭");
+    await page.click(SELECTORS.loginDialog.submitButton);
+    await page.waitForTimeout(1500);
+    await takeScreenshot(page, "06-login-button-clicked");
+
+    // ========== Assert: 결과 검증 ==========
+    log("이메일 에러 메시지 확인 중...", {
+      selector: SELECTORS.loginDialog.emailErrorMessageContainer,
+      expectedText: "이메일 주소를 입력해주세요.",
+    });
+
+    // 이메일 에러 메시지 컨테이너 대기 및 텍스트 확인
+    const emailErrorMessageContainer = await page.waitForSelector(
+      SELECTORS.loginDialog.emailErrorMessageContainer,
+      {
+        timeout: TEST_CONFIG.timeouts.errorMessageVisible,
+        state: "visible",
+      }
+    );
+
+    const emailErrorText = await emailErrorMessageContainer.textContent();
+    log(`이메일 에러 메시지 발견: "${emailErrorText}"`);
+
+    if (!emailErrorText || !emailErrorText.includes("이메일 주소를 입력해주세요")) {
+      throw new Error(
+        `이메일 에러 메시지 텍스트가 올바르지 않습니다. 실제: "${emailErrorText}"`
+      );
+    }
+
+    log("✅ 이메일 에러 메시지 검증 성공", {
+      expected: "이메일 주소를 입력해주세요.",
+      actual: emailErrorText,
+    });
+
+    // 비밀번호 에러 메시지 확인
+    log("비밀번호 에러 메시지 확인 중...", {
+      selector: SELECTORS.loginDialog.passwordErrorMessage,
+      expectedText: "공백 없이 입력해주세요.",
+    });
+
+    const passwordErrorElement = await page.waitForSelector(
+      SELECTORS.loginDialog.passwordErrorMessage,
+      {
+        timeout: TEST_CONFIG.timeouts.errorMessageVisible,
+        state: "visible",
+      }
+    );
+
+    const passwordErrorText = await passwordErrorElement.textContent();
+    log(`비밀번호 에러 메시지 발견: "${passwordErrorText}"`);
+
+    if (!passwordErrorText || !passwordErrorText.includes("공백 없이 입력해주세요")) {
+      throw new Error(
+        `비밀번호 에러 메시지 텍스트가 올바르지 않습니다. 실제: "${passwordErrorText}"`
+      );
+    }
+
+    log("✅ 비밀번호 에러 메시지 검증 성공", {
+      expected: "공백 없이 입력해주세요.",
+      actual: passwordErrorText,
+    });
+
+    // 이메일 입력 컨테이너 클래스 변경 확인
+    log("이메일 입력 컨테이너 클래스 변경 확인 중...", {
+      selector: SELECTORS.loginDialog.emailInputContainer,
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
+    });
+
+    const emailInputContainerLocator = page.locator(SELECTORS.loginDialog.emailInputContainer);
+    const emailContainerClass = await emailInputContainerLocator.getAttribute('class');
+    log(`이메일 컨테이너 클래스: "${emailContainerClass}"`);
+
+    if (!emailContainerClass || !emailContainerClass.includes('gGTyzN')) {
+      throw new Error(
+        `이메일 컨테이너 클래스가 에러 상태로 변경되지 않았습니다. 실제: "${emailContainerClass}"`
+      );
+    }
+
+    log("✅ 이메일 입력 컨테이너 클래스 변경 확인 성공", {
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
+      actualClass: emailContainerClass,
+    });
+
+    // 비밀번호 입력 컨테이너 클래스 변경 확인
+    log("비밀번호 입력 컨테이너 클래스 변경 확인 중...", {
+      selector: SELECTORS.loginDialog.passwordInputContainer,
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
+    });
+
+    const passwordInputContainerLocator = page.locator(SELECTORS.loginDialog.passwordInputContainer);
+    const passwordContainerClass = await passwordInputContainerLocator.getAttribute('class');
+    log(`비밀번호 컨테이너 클래스: "${passwordContainerClass}"`);
+
+    if (!passwordContainerClass || !passwordContainerClass.includes('gGTyzN')) {
+      throw new Error(
+        `비밀번호 컨테이너 클래스가 에러 상태로 변경되지 않았습니다. 실제: "${passwordContainerClass}"`
+      );
+    }
+
+    log("✅ 비밀번호 입력 컨테이너 클래스 변경 확인 성공", {
+      expectedClass: "sc-267d8ce6-0 gGTyzN",
+      actualClass: passwordContainerClass,
+    });
+
+    await takeScreenshot(page, "07-error-message-displayed", true);
+
+    // 로그인 다이얼로그가 여전히 표시되는지 확인
+    const dialogStillVisible = await page.isVisible(
+      SELECTORS.loginDialog.container
+    );
+    if (!dialogStillVisible) {
+      throw new Error("로그인 다이얼로그가 닫혔습니다. 로그인이 실패해야 합니다.");
+    }
+
+    log("✅ 로그인 다이얼로그 유지 확인 성공 (로그인 실패)");
+
+    log("\n=== ✅ TC-EMAIL-010 테스트 성공 ===", {
+      totalSteps: stepCounter,
+      result: "PASS",
+      emailErrorMessage: emailErrorText,
+      passwordErrorMessage: passwordErrorText,
+      classChange: ".sc-267d8ce6-0.ejTrKt → .sc-267d8ce6-0.gGTyzN",
+      loginStatus: "실패 (예상대로)",
+    });
+  } catch (error) {
+    log("❌ TC-EMAIL-010 테스트 실패", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
+    if (page) {
+      await takeScreenshot(page, "ERROR", true);
+    }
+
+    throw error;
+  } finally {
+    if (browser) {
+      log("브라우저 종료 중...");
+      await browser.close();
+      log("브라우저 종료 완료");
+    }
+  }
+}
+
+// ==================== 테스트 실행 ====================
+runTest()
+  .then(() => {
+    console.log("\n✅ 테스트 실행 완료");
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error("\n❌ 테스트 실행 실패:", error);
+    process.exit(1);
+  });

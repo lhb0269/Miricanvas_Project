@@ -1,0 +1,26 @@
+# 스크린샷 제외
+Docs/Report/Screenshots/
+
+# Node modules
+node_modules/
+
+# TypeScript 컴파일 결과
+*.js
+*.js.map
+!*.config.js
+
+# IDE 설정 파일
+.vscode/
+.idea/
+
+# 로그 파일
+*.log
+
+# OS 생성 파일
+.DS_Store
+Thumbs.db
+
+# 임시 파일
+*.tmp
+*.temp
+nul
